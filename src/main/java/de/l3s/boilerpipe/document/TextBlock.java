@@ -38,6 +38,14 @@ public class TextBlock implements Cloneable {
 
     int offsetBlocksStart;
     int offsetBlocksEnd;
+    
+    int lineNumberStart;
+    int columnNumberStart;
+    int lineNumberEnd;
+    int columnNumberEnd;
+    
+    int offsetCharacterStart;
+    int offsetCharacterEnd;
 
     int numWords;
     int numWordsInAnchorText;
@@ -65,6 +73,17 @@ public class TextBlock implements Cloneable {
             final int numWords, final int numWordsInAnchorText,
             final int numWordsInWrappedLines, final int numWrappedLines,
             final int offsetBlocks) {
+    	this(text, containedTextElements, numWords, numWordsInAnchorText,
+    			numWordsInWrappedLines, numWrappedLines, offsetBlocks,
+    			-1, -1, -1, -1);
+    }
+    
+    public TextBlock(final String text, final BitSet containedTextElements,
+            final int numWords, final int numWordsInAnchorText,
+            final int numWordsInWrappedLines, final int numWrappedLines,
+            final int offsetBlocks,
+            final int lineNumberStart, final int columnNumberStart,
+            final int lineNumberEnd, final int columnNumberEnd) {
         this.text = text;
         this.containedTextElements = containedTextElements;
         this.numWords = numWords;
@@ -73,6 +92,10 @@ public class TextBlock implements Cloneable {
         this.numWrappedLines = numWrappedLines;
         this.offsetBlocksStart = offsetBlocks;
         this.offsetBlocksEnd = offsetBlocks;
+        this.lineNumberStart = lineNumberStart;
+        this.lineNumberEnd = lineNumberEnd;
+        this.columnNumberStart = columnNumberStart;
+        this.columnNumberEnd = columnNumberEnd;
         initDensities();
     }
 
@@ -148,6 +171,15 @@ public class TextBlock implements Cloneable {
         }
         
         tagLevel = Math.min(tagLevel, other.tagLevel);
+        
+        if (lineNumberStart > other.lineNumberStart || lineNumberStart == other.lineNumberStart && columnNumberStart > other.columnNumberStart) {
+        	lineNumberStart = other.lineNumberStart;
+        	columnNumberStart = other.columnNumberStart;
+        }
+        if (lineNumberEnd < other.lineNumberEnd || lineNumberEnd == other.lineNumberEnd && columnNumberEnd < other.columnNumberEnd) {
+        	lineNumberEnd = other.lineNumberEnd;
+        	columnNumberEnd = other.columnNumberEnd;
+        }
     }
 
     private void initDensities() {
@@ -283,4 +315,53 @@ public class TextBlock implements Cloneable {
 	public void setTagLevel(int tagLevel) {
 		this.tagLevel = tagLevel;
 	}
+	
+	public int getLineNumberStart() {
+		return lineNumberStart;
+	}
+
+	public void setLineNumberStart(int lineNumberStart) {
+		this.lineNumberStart = lineNumberStart;
+	}
+
+	public int getColumnNumberEnd() {
+		return columnNumberEnd;
+	}
+
+	public void setColumnNumberEnd(int columnNumberEnd) {
+		this.columnNumberEnd = columnNumberEnd;
+	}
+
+	public int getLineNumberEnd() {
+		return lineNumberEnd;
+	}
+
+	public void setLineNumberEnd(int lineNumberEnd) {
+		this.lineNumberEnd = lineNumberEnd;
+	}
+
+	public int getColumnNumberStart() {
+		return columnNumberStart;
+	}
+
+	public void setColumnNumberStart(int columnNumberStart) {
+		this.columnNumberStart = columnNumberStart;
+	}
+
+	public int getOffsetCharacterStart() {
+		return offsetCharacterStart;
+	}
+
+	public void setOffsetCharacterStart(int offsetCharacterStart) {
+		this.offsetCharacterStart = offsetCharacterStart;
+	}
+
+	public int getOffsetCharacterEnd() {
+		return offsetCharacterEnd;
+	}
+
+	public void setOffsetCharacterEnd(int offsetCharacterEnd) {
+		this.offsetCharacterEnd = offsetCharacterEnd;
+	}
+
 }

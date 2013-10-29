@@ -32,19 +32,20 @@ import de.l3s.boilerpipe.sax.HTMLFetcher;
  * @author Christian Kohlschütter
  */
 public class UsingSAX {
-    public static void main(final String[] args) throws Exception {
-        URL url;
-        url = new URL(
-                "http://www.l3s.de/web/page11g.do?sp=page11g&link=ln104g&stu1g.LanguageISOCtxParam=en");
+	public static void main(final String[] args) throws Exception {
+		URL url;
+		url = new URL(
+		// "http://www.l3s.de/web/page11g.do?sp=page11g&link=ln104g&stu1g.LanguageISOCtxParam=en");
+				"http://www.dn.se/nyheter/vetenskap/annu-godare-choklad-med-hjalp-av-dna-teknik");
 
-        final InputSource is = HTMLFetcher.fetch(url).toInputSource();
-        
-        final BoilerpipeSAXInput in = new BoilerpipeSAXInput(is);
-        final TextDocument doc = in.getTextDocument();
+		final InputSource is = HTMLFetcher.fetch(url).toInputSource();
 
-        // You have the choice between different Extractors
+		final BoilerpipeSAXInput in = new BoilerpipeSAXInput(is);
+		final TextDocument doc = in.getTextDocument();
 
-        // System.out.println(DefaultExtractor.INSTANCE.getText(doc));
-        System.out.println(ArticleExtractor.INSTANCE.getText(doc));
-    }
+		// You have the choice between different Extractors
+
+		// System.out.println(DefaultExtractor.INSTANCE.getText(doc));
+		System.out.println(ArticleExtractor.INSTANCE.getText(doc));
+	}
 }

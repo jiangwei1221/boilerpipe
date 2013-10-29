@@ -74,6 +74,15 @@ public class BoilerpipeHTMLContentHandler implements ContentHandler {
 
 	private boolean flush = false;
 	boolean inAnchorText = false;
+	
+	private Locator locator;
+	private int lastLineNumber = -1;
+	private int lastColumnNumber = -1;
+	
+	private int lineNumberStart = -1;
+	private int columnNumberStart = -1;
+	private int lineNumberEnd = -1;
+	private int columnNumberEnd = -1;
 
 	LinkedList<LinkedList<LabelAction>> labelStacks = new LinkedList<LinkedList<LabelAction>>();
 	LinkedList<Integer> fontSizeStack = new LinkedList<Integer>();
@@ -150,6 +159,7 @@ public class BoilerpipeHTMLContentHandler implements ContentHandler {
 
 	// @Override
 	public void setDocumentLocator(Locator locator) {
+		this.locator = locator;
 	}
 
 	// @Override
@@ -158,6 +168,7 @@ public class BoilerpipeHTMLContentHandler implements ContentHandler {
 
 	// @Override
 	public void startDocument() throws SAXException {
+		storeLastLocation();
 	}
 
 	// @Override
@@ -183,6 +194,8 @@ public class BoilerpipeHTMLContentHandler implements ContentHandler {
 
 		lastEvent = Event.START_TAG;
 		lastStartTag = localName;
+		
+		storeLastLocation();
 	}
 
 	// @Override
@@ -207,6 +220,25 @@ public class BoilerpipeHTMLContentHandler implements ContentHandler {
 		lastEndTag = localName;
 
 		labelStacks.removeLast();
+		
+		storeLastLocation();
+	}
+	
+	private void storeLastLocation() {
+		lastLineNumber = locator.getLineNumber();
+		lastColumnNumber = locator.getColumnNumber();
+	}
+	
+	private void beforeAppendText() {
+		if (textBuffer.length() == 0) {
+			lineNumberStart = lastLineNumber;
+			columnNumberStart = lastColumnNumber;
+		}
+	}
+	
+	private void afterAppendText() {
+		lineNumberEnd = locator.getLineNumber();
+		columnNumberEnd = locator.getColumnNumber();
 	}
 
 	// @Override
@@ -259,8 +291,10 @@ public class BoilerpipeHTMLContentHandler implements ContentHandler {
 		if (length == 0) {
 			if (startWhitespace || endWhitespace) {
 				if (!sbLastWasWhitespace) {
+					beforeAppendText();
 					textBuffer.append(' ');
 					tokenBuffer.append(' ');
+					afterAppendText();
 				}
 				sbLastWasWhitespace = true;
 			} else {
@@ -271,20 +305,27 @@ public class BoilerpipeHTMLContentHandler implements ContentHandler {
 		}
 		if (startWhitespace) {
 			if (!sbLastWasWhitespace) {
+				beforeAppendText();
 				textBuffer.append(' ');
 				tokenBuffer.append(' ');
+				afterAppendText();
 			}
 		}
 		
 		if (blockTagLevel == -1) {
 			blockTagLevel = tagLevel;
 		}
-
+		
+		beforeAppendText();
 		textBuffer.append(ch, start, length);
 		tokenBuffer.append(ch, start, length);
+		afterAppendText();
+		
 		if (endWhitespace) {
+			beforeAppendText();
 			textBuffer.append(' ');
 			tokenBuffer.append(' ');
+			afterAppendText();
 		}
 
 		sbLastWasWhitespace = endWhitespace;
@@ -364,7 +405,9 @@ public class BoilerpipeHTMLContentHandler implements ContentHandler {
 
 		TextBlock tb = new TextBlock(textBuffer.toString().trim(),
 				currentContainedTextElements, numWords, numLinkedWords,
-				numWordsInWrappedLines, numWrappedLines, offsetBlocks);
+				numWordsInWrappedLines, numWrappedLines, offsetBlocks,
+				lineNumberStart, columnNumberStart, lineNumberEnd, columnNumberEnd);
+
 		currentContainedTextElements = new BitSet();
 
 		offsetBlocks++;
